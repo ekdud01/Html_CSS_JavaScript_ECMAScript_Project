@@ -17,3 +17,18 @@ body {
     /* 배경색을 아주 연한 회색으로 깔아줍니다. */
     background-color: #f4f4f4;
 }
+
+/* [2단계] 헤더(상단 바) 레이아웃 */
+.header {
+    /* Flexbox를 활성화하여 자식 요소(로고, 메뉴)를 가로로 배치합니다. */
+    display: flex;
+    /* 자식 요소들을 양쪽 끝으로 밀어냅니다. (이름은 왼쪽, 메뉴는 오른쪽) */
+    justify-content: space-between; 
+    /* 자식 요소들을 세로 방향에서 정중앙에 위치시킵니다. */
+    align-items: center; 
+    /* 안쪽 여백: 위아래 20px, 좌우 50px을 줍니다. */
+    padding: 20px 50px;
+    /* 배경은 어두운 회색(#333), 글자는 흰색(white)으로 설정합니다. */
+    background-color: #333;
+    color: white;
+}

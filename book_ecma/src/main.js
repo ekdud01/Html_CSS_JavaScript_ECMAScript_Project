@@ -1,60 +1,131 @@
 import './style.css'
-import heroImg from './assets/hero.png'
-import javascriptLogo from './assets/javascript.svg'
-import viteLogo from './assets/vite.svg'
-import { setupCounter } from './counter.js'
+import {
+  createBook,
+  updateBook,
+  deleteBook,
+  fetchBook,
+  fetchBooks,
+} from './api/bookApi';
+import { collectBookData, fillForm, resetForm, scrollToForm, setEditMode } from './ui/bookForm.js';
+import { validateBook } from './lib/validation.js';
+import { clearMessages, setLoading, showError, showSuccess } from './ui/message.js';
+import { formatBookDetail } from './ui/bookDetail.js';
+import { renderBookTable, renderTableError } from './ui/bookTable.js';
 
-document.querySelector('#app').innerHTML = `
-<section id="center">
-  <div class="hero">
-    <img src="${heroImg}" class="base" width="170" height="179">
-    <img src="${javascriptLogo}" class="framework" alt="JavaScript logo"/>
-    <img src="${viteLogo}" class="vite" alt="Vite logo" />
-  </div>
-  <div>
-    <h1>Get started</h1>
-    <p>Edit <code>src/main.js</code> and save to test <code>HMR</code></p>
-  </div>
-  <button id="counter" type="button" class="counter"></button>
-</section>
+// 전역 변수
+let editingBookId = null; // 현재 수정 중인 도서 ID
 
-<div class="ticks"></div>
+// 폼 제출 이벤트 핸들러
+bookForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
 
-<section id="next-steps">
-  <div id="docs">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#documentation-icon"></use></svg>
-    <h2>Documentation</h2>
-    <p>Your questions, answered</p>
-    <ul>
-      <li>
-        <a href="https://vite.dev/" target="_blank">
-          <img class="logo" src="${viteLogo}" alt="" />
-          Explore Vite
-        </a>
-      </li>
-      <li>
-        <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-          <img class="button-icon" src="${javascriptLogo}" alt="">
-          Learn more
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#social-icon"></use></svg>
-    <h2>Connect with us</h2>
-    <p>Join the Vite community</p>
-    <ul>
-      <li><a href="https://github.com/vitejs/vite" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#github-icon"></use></svg>GitHub</a></li>
-      <li><a href="https://chat.vite.dev/" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#discord-icon"></use></svg>Discord</a></li>
-      <li><a href="https://x.com/vite_js" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#x-icon"></use></svg>X.com</a></li>
-      <li><a href="https://bsky.app/profile/vite.dev" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#bluesky-icon"></use></svg>Bluesky</a></li>
-    </ul>
-  </div>
-</section>
+  try {
+    const bookData = collectBookData();
 
-<div class="ticks"></div>
-<section id="spacer"></section>
-`
+    const validationError = validateBook(bookData);
+    if (validationError) {
+      showError(validationError); 
+      return;
+    }
 
-setupCounter(document.querySelector('#counter'))
+    if (editingBookId) {
+      await updateBook(editingBookId, bookData);
+      showSuccess('도서가 수정되었습니다.');
+    } else {
+      await createBook(bookData);
+      showSuccess('도서가 등록되었습니다.');
+    }
+    resetForm();
+    await loadBooks();
+  } catch (error) {
+    console.error('Error:', error);
+    showError('도서 처리에 실패했습니다.');
+  }
+});
+
+cancelButton.addEventListener("click", () => {
+  editingBookId = null;
+  resetForm();
+  clearMessages();
+});
+
+// 도서 목록 로드 함수
+async function loadBooks() {
+  setLoading(true);
+
+  try {
+    const data = await fetchBooks();
+    renderBookTable(data);
+  } catch (error) {
+    console.error('Error:', error);
+    showError('도서 목록을 불러오는데 실패했습니다.');
+    renderTableError();
+  } finally {
+    setLoading(false);
+  }
+}
+
+bookTableBody.addEventListener("click", async (event) => {
+  const button = event.target.closest("button[data-action]");
+  if (!button) return;
+
+  const id = Number(button.dataset.id);
+  const action = button.dataset.action;
+
+  if (action === "edit") startEdit(id);
+  if (action === "delete") removeBook(id);
+  if (action === "detail") showDetail(id);
+
+});
+
+// 도서 삭제 함수
+async function removeBook(bookId) {
+  if (!confirm('정말로 이 도서를 삭제하시겠습니까?')) {
+    return;
+  }
+
+  try {
+    await deleteBook(bookId);
+    showSuccess('도서가 성공적으로 삭제되었습니다.');
+
+    if (editingBookId === bookId) {
+      editingBookId = null;
+      resetForm();
+    }
+    await loadBooks();
+  } catch (error) {
+    console.error('Error:', error);
+    showError('도서 삭제에 실패했습니다.');
+  };
+}
+
+// 도서 수정 함수
+async function startEdit(bookId) {
+  clearMessages();
+
+  try {
+    const book = await fetchBook(bookId);
+
+    fillForm(book);
+    editingBookId = bookId;
+    setEditMode(true);
+    scrollToForm();
+  } catch (error) {
+    console.error('Error:', error);
+    showError('도서 정보를 불러오는데 실패했습니다.');
+  }
+}
+
+// 도서 상세보기 함수
+async function showDetail(bookId) {
+  try {
+    const book = await fetchBook(bookId);
+    const bookDetailText = formatBookDetail(book);
+    alert(bookDetailText);
+  } catch (error) {
+    console.error('Error:', error);
+    showError('도서 정보를 불러오는데 실패했습니다.');
+  };
+}
+
+loadBooks();

@@ -11,8 +11,8 @@
    --------------------------------------------------------- */
    
 // CSS 도 import 한다. Vite 가 이 줄을 보고 스타일을 끼워 넣는다.
-import "./style.css";
- 
+import './style.css'
+
 // 서버와 대화하는 함수들
 import {
     fetchStudents,
@@ -21,22 +21,22 @@ import {
     updateStudent,
     deleteStudent,
 } from './api/studentApi';
- 
-// 입력값 검사
-import { validateStudent } from "./lib/validation.js";
- 
+
 // 폼 다루기
 import {
-    studentForm, cancelButton, collectStudentData,
+    studentForm, collectStudentData, cancelButton,
     fillForm, setEditMode, resetForm, scrollToForm,
 } from "./ui/studentForm.js";
- 
-// 표 그리기
-import { renderStudentTable, renderTableError, studentTableBody } from "./ui/studentTable.js";
- 
+
+// 입력값 검사
+import { validateStudent } from "./lib/validation.js";
+
 // 메시지 표시
 import { showError, showSuccess, clearMessages, setLoading } from "./ui/message.js";
- 
+
+// 표 그리기
+import { renderStudentTable, renderTableError, studentTableBody, } from "./ui/studentTable.js";
+
 // 지금 어느 모드로 도는지 (TEST / PROD)
 import { APP_MODE } from "./config.js";
 
@@ -62,12 +62,12 @@ if (APP_MODE === "PROD") {
 // 폼 제출 이벤트 핸들러
 // 핸들러 안에서 await 을 쓰려면 함수에 async 를 붙여야 한다.
 studentForm.addEventListener("submit", async (event) => {
-    e.preventDefault();          // 폼 제출로 페이지가 새로고침되는 것을 막는다
+    event.preventDefault();          // 폼 제출로 페이지가 새로고침되는 것을 막는다
     clearMessages();
-
+ 
     //FormData에 저장된 값을 추출하여 서버로 전송할 중첩된 객체를 다시 생성하기
     const studentData = collectStudentData();
-
+ 
     // 유효성 검사
     // validateStudent 는 문제가 있으면 메시지를, 없으면 null 을 돌려준다.
     // 문제가 있으면 여기서 끝낸다(early return).
@@ -76,7 +76,7 @@ studentForm.addEventListener("submit", async (event) => {
         showError(errorMessage);
         return;
     }
-
+ 
     try {
         // editingStudentId 에 값이 있으면 수정, 없으면 등록이다.
         if (editingStudentId) {
@@ -136,7 +136,7 @@ studentTableBody.addEventListener("click", async (event) => {
     //   event.target  이벤트를 건 tbody 가 아니라 실제로 눌린 가장 안쪽 요소
     //   closest(...)  자기 자신부터 부모 쪽으로 올라가며 조건에 맞는 첫 요소를 찾는다
     //                 끝까지 없으면 null 을 돌려준다
-    // <button type="button" class="edit-btn" data-action="edit" data-id="1">수정</button>
+    //<button type="button" class="edit-btn" data-action="edit" data-id="1">수정</button>
     const button = event.target.closest("button[data-action]");
     if (!button) return;             // 버튼이 아닌 곳을 눌렀다
  

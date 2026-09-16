@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
+import './MyComponent.css'
 
 class MyComponent extends Component {
     // 상태 객체
     state = {
         value: 0,
         message: '',
-        username: ''
+        username: '',
+        isValid: false,
     };
 
     // event handler 함수
@@ -17,11 +19,22 @@ class MyComponent extends Component {
         })
     }
 
+    handleEnter = (e) => {
+        if (e.keyCode === 13) {
+            this.setState({
+                isValid: true,
+                message: ''
+            });
+            // html DOM에 직접 접근
+            this.myUsername.focus();
+        }
+    };
+
     // Component 메서드 재정의
     render() {
         const { name, age } = this.props;
-        const { value, message, username } = this.state;
-        const { handleChange } = this;
+        const { value, message, username, isValid } = this.state;
+        const { handleChange, handleEnter } = this;
 
         return (
             <div>
@@ -31,10 +44,15 @@ class MyComponent extends Component {
                 <button onClick={() => this.setState({value: value + 1})}>증가</button>
 
                 <p>상태변수 message = {message}</p>
-                <input name="message" value={message} onChange={handleChange} />
+                <input name="message" value={message} onChange={handleChange} 
+                    onKeyDown={handleEnter}
+                />
                 <br />
                 <p>상태변수 username = {username}</p>
-                <input name="username" value={username} onChange={handleChange} />
+                <input name="username" value={username} onChange={handleChange} 
+                    className={isValid ? 'success':'failure'}
+                    ref={(ref) => this.myUsername = ref}
+                />
             </div>
         );
     } // render()

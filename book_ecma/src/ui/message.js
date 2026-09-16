@@ -1,10 +1,23 @@
+/* ---------------------------------------------------------
+   메시지 표시 — 성공 / 실패 / 로딩
+   form10.js 는 모든 안내를 alert 으로 띄웠습니다.
+   alert 은 화면을 멈춰 세우고, 사용자가 확인을 누를 때까지
+   아무것도 할 수 없게 만듭니다.
+
+   여기서는 폼 아래의 한 자리(#formError)에 글자로 보여 줍니다.
+   색과 자동 삭제 여부만 다르므로 showMessage 하나로 합치고
+   나머지 둘은 인자만 달리해 이름을 붙였습니다.
+   --------------------------------------------------------- */
+
+// form10.js 에서는 DOMContentLoaded 를 기다려야 했지만 여기서는 필요 없다.
+// <script type="module"> 은 HTML 을 다 읽은 뒤에 실행되기 때문이다.
 const formError = document.getElementById("formError");
 const loadingMessage = document.getElementById("loadingMessage");
 
 // 색을 코드 여기저기에 적지 않고 한곳에 모아 둔다.
 const COLORS = {
-    error: "#dc3545",
-    success: "#28a745",
+    error: "#f44336",
+    success: "#4CAF50",
 };
 
 // 성공 메시지가 저절로 사라지기까지의 시간(ms)
@@ -16,7 +29,7 @@ let messageTimer = null;
 
 /* type 과 timeout 은 기본 매개변수다. 생략하면 "error" 와 0 이 들어간다.
    생략했을 때 안전한 쪽(지워지지 않는 오류 메시지)이 되도록 골랐다. */
-function showMessage(text, type = "error", timeout = 0) {
+export function showMessage(text, type = "error", timeout = 0) {
     // 이전에 걸어 둔 자동 삭제 예약을 취소한다.
     // 이게 없으면 앞 메시지의 예약이 새 메시지를 지워 버린다.
     clearTimeout(messageTimer);
@@ -34,9 +47,9 @@ function showMessage(text, type = "error", timeout = 0) {
 }
 
 // 자주 쓰는 두 가지는 showMessage 에 인자만 채워 이름을 붙였다.
-export const showError = (message) => showMessage(message, "error");
+export const showError = (text) => showMessage(text, "error");
 
-export const showSuccess = (message) => showMessage(message, "success", MESSAGE_TIMEOUT);
+export const showSuccess = (text) => showMessage(text, "success", MESSAGE_TIMEOUT);
 
 export function clearMessages() {
     clearTimeout(messageTimer);      // 남아 있는 예약도 함께 취소한다
@@ -46,7 +59,8 @@ export function clearMessages() {
     formError.style.display = "none";
 }
 
-// 3부에서는 loadingMessage 를 선언만 하고 쓰지 않았다. 여기서 실제로 동작한다.
+// form10.css 에는 .loading 규칙이 있었지만 form10.js 는 쓰지 않았다.
+// 여기서 실제로 동작한다.
 export function setLoading(isLoading = true) {
     loadingMessage.style.display = isLoading ? "block" : "none";
 }

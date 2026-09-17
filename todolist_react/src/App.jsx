@@ -4,8 +4,8 @@ import AppTodo from './AppTodo'
 const App = () => {
     return (
         <div>
-            {/* <AppTodo /> */}
-            <UseCallbackApp />;
+            <AppTodo />
+            {/* <UseCallbackApp />; */}
         </div>
     );
 };

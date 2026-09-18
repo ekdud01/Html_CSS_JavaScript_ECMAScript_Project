@@ -27,7 +27,7 @@ import {
    set 은 넘긴 것을 기존 값과 합쳐 준다. useState 의 setter 가 통째로
    바꾸는 것과 다르므로 ...state 를 펼쳐 넣지 않아도 된다. */
 export const useStudentStore = create((set, get) => ({
-    // ── 값 ──────────────────────────────────────────────
+    // ── 값(상태변수)을 변경하려면 인자로 받은 set() 함수를 호출해야 함 ─────────────
     students: [],
     loading: false,
     listError: null,

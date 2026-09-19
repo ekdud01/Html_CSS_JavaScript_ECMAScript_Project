@@ -9,10 +9,10 @@ function BookTable({ books, loading, error, onEdit, onDelete, onDetail }) {
                 <td colSpan={COLUMN_COUNT} className="error-row">{error}</td>"
             </tr>
         );
-    } else if (books.length === 0 & !loading) {
+    } else if (books.length === 0 && !loading) {
         rows = (
             <tr>
-                <td colSpan={COLUMN_COUNT} className="empty-row">등록된 학생이 없습니다.</td>
+                <td colSpan={COLUMN_COUNT} className="empty-row">등록된 도서가 없습니다.</td>
             </tr>
         );
     } else {
@@ -22,7 +22,7 @@ function BookTable({ books, loading, error, onEdit, onDelete, onDetail }) {
                 <td>{book.author}</td>
                 <td>{book.isbn}</td>
                 <td>{book.price}</td>
-                <td>{book.publicDate ?? "-"}</td>
+                <td>{book.publishDate ?? "-"}</td>
                 <td>{book.bookDetail?.publisher ?? "-"}</td>
                 <td>
                     <button type="button" className="edit-btn"
@@ -35,4 +35,29 @@ function BookTable({ books, loading, error, onEdit, onDelete, onDetail }) {
             </tr>
         ));
     }
+
+    return (
+        <div className="table-container">
+            <h2>도서 목록</h2>
+
+            {loading && <div className="loading">로딩 중...</div>}
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>제목</th>
+                        <th>저자</th>
+                        <th>ISBN</th>
+                        <th>가격</th>
+                        <th>출판일</th>
+                        <th>출판사</th>
+                        <th>액션</th>
+                    </tr>
+                </thead>
+                <tbody>{rows}</tbody>
+            </table>
+        </div>
+    );
 }
+
+export default BookTable;
